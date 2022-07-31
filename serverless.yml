@@ -1,0 +1,33 @@
+service: auriga
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: ap-northeast-1
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+plugins:
+  - serverless-offline
+
+useDotenv: true
+
+custom:
+  serverless-offline:
+    useDocker: true
+
+functions:
+  cmd:
+    handler: bin/cmd
+    events:
+      - http:
+          path: callback
+          method: post
+          cors: true
+    environment:
+      SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+      SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
