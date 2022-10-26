@@ -18,6 +18,9 @@ package service
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/moneyforward/auriga/app/pkg/slice"
 
 	repository2 "github.com/moneyforward/auriga/app/internal/domain/repository"
 	"github.com/moneyforward/auriga/app/internal/model"
@@ -45,6 +48,7 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 		return nil, err
 	}
 	inviteUserIDs := s.getReactionUserIDs(ctx, msg.Reactions, reactionName)
+	fmt.Println(inviteUserIDs)
 	inviteUserEmails, err := s.slackRepository.ListUsersEmail(ctx, inviteUserIDs)
 	if err != nil {
 		return nil, err
@@ -55,18 +59,20 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 // getReactionUserIDs get reaction users by reactionName
 func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reactions []*model.SlackReaction, reactionName string) []string {
 	var userIDs []string
-	var targetReaction *model.SlackReaction
+	var targetReactions []*model.SlackReaction
 	for _, reaction := range reactions {
 		for _, st := range model.ReactionSkinTones {
-			if reaction.Name == reactionName+st {
-				targetReaction = reaction
+			if reaction.Name == reactionName || reaction.Name == reactionName+"::"+st {
+				targetReactions = append(targetReactions, reaction)
 				break
 			}
 		}
 	}
-	if targetReaction == nil {
+	if targetReactions == nil || len(targetReactions) == 0 {
 		return userIDs // no reaction members
 	}
-	userIDs = append(userIDs, targetReaction.UserIDs...)
-	return userIDs
+	for _, tr := range targetReactions {
+		userIDs = append(userIDs, tr.UserIDs...)
+	}
+	return slice.ToStringSet(userIDs)
 }
