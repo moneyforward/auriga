@@ -53,9 +53,9 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 }
 
 // getReactionUserIDs get reaction users by reactionName
-func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reactions []*model.SlackReactions, reactionName string) []string {
+func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reactions []*model.SlackReaction, reactionName string) []string {
 	var userIDs []string
-	var targetReaction *model.SlackReactions
+	var targetReaction *model.SlackReaction
 	for _, reaction := range reactions {
 		for _, st := range model.ReactionSkinTones {
 			if reaction.Name == reactionName+st {

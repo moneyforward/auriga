@@ -20,9 +20,9 @@ package model
 // A reaction with skin-tone can be expressed by combining the following array elements with the reaction specified by the user
 var ReactionSkinTones []string = []string{
 	"", // this value is used to express reactions without skin-tone
-	":skin-tone-2:",
-	":skin-tone-3:",
-	":skin-tone-4:",
-	":skin-tone-5:",
-	":skin-tone-6:",
+	"skin-tone-2",
+	"skin-tone-3",
+	"skin-tone-4",
+	"skin-tone-5",
+	"skin-tone-6",
 }

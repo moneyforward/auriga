@@ -59,9 +59,9 @@ func (r *slackRepository) GetParentMessage(ctx context.Context, channelID, ts st
 	if len(msgs) > 0 {
 		fmt.Printf("%#v \n", msgs[0])
 		parentMessage := msgs[0]
-		var reactions []*model.SlackReactions
+		var reactions []*model.SlackReaction
 		for _, reaction := range parentMessage.Reactions {
-			reactions = append(reactions, &model.SlackReactions{
+			reactions = append(reactions, &model.SlackReaction{
 				Name:    reaction.Name,
 				UserIDs: reaction.Users,
 			})
