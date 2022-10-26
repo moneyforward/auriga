@@ -66,7 +66,7 @@ func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reac
 			}
 		}
 	}
-	if targetReactions == nil || len(targetReactions) == 0 {
+	if len(targetReactions) == 0 {
 		return userIDs // no reaction members
 	}
 	for _, tr := range targetReactions {
