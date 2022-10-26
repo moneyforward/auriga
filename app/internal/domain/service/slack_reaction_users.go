@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/moneyforward/auriga/app/pkg/slice"
 
@@ -48,7 +47,6 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 		return nil, err
 	}
 	inviteUserIDs := s.getReactionUserIDs(ctx, msg.Reactions, reactionName)
-	fmt.Println(inviteUserIDs)
 	inviteUserEmails, err := s.slackRepository.ListUsersEmail(ctx, inviteUserIDs)
 	if err != nil {
 		return nil, err
