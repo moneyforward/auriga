@@ -57,9 +57,11 @@ func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reac
 	var userIDs []string
 	var targetReaction *model.SlackReactions
 	for _, reaction := range reactions {
-		if reaction.Name == reactionName {
-			targetReaction = reaction
-			break
+		for _, st := range model.ReactionSkinTones {
+			if reaction.Name == reactionName+st {
+				targetReaction = reaction
+				break
+			}
 		}
 	}
 	if targetReaction == nil {
