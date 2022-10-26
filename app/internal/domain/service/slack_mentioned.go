@@ -45,10 +45,11 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 			Message: message,
 		}
 	}
-	if strings.HasPrefix(tmp[1], ":") && strings.HasSuffix(tmp[1], ":") {
+	reaction := tmp[1]
+	if strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":") {
 		return &model.MentionParseResult{
 			Message:  message,
-			Reaction: strings.ReplaceAll(tmp[1], ":", ""),
+			Reaction: strings.ReplaceAll(s.removeSkinTone(reaction), ":", ""),
 		}
 	}
 	// invalid argument (not emoji)
@@ -56,4 +57,11 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 		Message: message,
 		Command: CommandHelp,
 	}
+}
+
+func (s *slackMentionedService) removeSkinTone(reaction string) string {
+	for _, st := range model.ReactionSkinTones {
+		reaction = strings.ReplaceAll(reaction, st, "")
+	}
+	return reaction
 }
