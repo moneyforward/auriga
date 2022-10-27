@@ -19,6 +19,8 @@ package service
 import (
 	"strings"
 
+	"github.com/moneyforward/auriga/app/internal/types"
+
 	"github.com/moneyforward/auriga/app/internal/model"
 )
 
@@ -46,7 +48,7 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 		}
 	}
 	reaction := tmp[1]
-	if strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":") {
+	if s.isSlackReaction(reaction) {
 		return &model.MentionParseResult{
 			Message:  message,
 			Reaction: strings.ReplaceAll(s.removeSkinTone(reaction), ":", ""),
@@ -59,8 +61,12 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 	}
 }
 
+func (s *slackMentionedService) isSlackReaction(reaction string) bool {
+	return strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":")
+}
+
 func (s *slackMentionedService) removeSkinTone(reaction string) string {
-	for _, st := range model.ReactionSkinTones {
+	for _, st := range types.ReactionSkinTones {
 		reaction = strings.ReplaceAll(reaction, st, "")
 	}
 	return reaction
