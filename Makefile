@@ -13,7 +13,7 @@ install-modules:
 install-tools:
 	mkdir -p bin; \
 	go install golang.org/x/tools/cmd/goimports@$(GO_TOOLS_VERSION);
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2;
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.47.0;
 	go install github.com/golang/mock/mockgen@v1.6.0;
 
 install: install-go install-modules install-tools
