@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package model
+package slack
 
-// ReactionSkinTones is all of skin-tone names supported by Slack
-// A reaction with skin-tone can be expressed by combining the following array elements with the reaction specified by the user
-var ReactionSkinTones []string = []string{
-	"", // this value is used to express reactions without skin-tone
-	"skin-tone-2",
-	"skin-tone-3",
-	"skin-tone-4",
-	"skin-tone-5",
-	"skin-tone-6",
+import (
+	"regexp"
+	"strings"
+)
+
+func IsReaction(reaction string) bool {
+	return strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":")
+}
+
+func ExtractReactionName(reaction string) string {
+	return strings.ReplaceAll(reaction, ":", "")
+}
+
+// regReactionSkinTone is regexp which indicate skin-tone names supported by Slack
+var regReactionSkinTone = regexp.MustCompile("skin-tone-\\d+")
+
+// RemoveSkinToneFromReaction uses regexp to remove the skin-tone string
+func RemoveSkinToneFromReaction(reaction string) string {
+	return regReactionSkinTone.ReplaceAllString(reaction, "")
 }

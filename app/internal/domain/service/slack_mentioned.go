@@ -19,7 +19,7 @@ package service
 import (
 	"strings"
 
-	"github.com/moneyforward/auriga/app/internal/types"
+	"github.com/moneyforward/auriga/app/pkg/slack"
 
 	"github.com/moneyforward/auriga/app/internal/model"
 )
@@ -48,10 +48,11 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 		}
 	}
 	reaction := tmp[1]
-	if s.isSlackReaction(reaction) {
+	if slack.IsReaction(reaction) {
 		return &model.MentionParseResult{
-			Message:  message,
-			Reaction: s.extractReactionName(s.removeSkinTone(reaction)),
+			Message: message,
+			Reaction: slack.ExtractReactionName(
+				slack.RemoveSkinToneFromReaction(reaction)),
 		}
 	}
 	// invalid argument (not emoji)
@@ -59,19 +60,4 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 		Message: message,
 		Command: CommandHelp,
 	}
-}
-
-func (s *slackMentionedService) isSlackReaction(reaction string) bool {
-	return strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":")
-}
-
-func (s *slackMentionedService) extractReactionName(reaction string) string {
-	return strings.ReplaceAll(reaction, ":", "")
-}
-
-func (s *slackMentionedService) removeSkinTone(reaction string) string {
-	for _, st := range types.ReactionSkinTones {
-		reaction = strings.ReplaceAll(reaction, st, "")
-	}
-	return reaction
 }

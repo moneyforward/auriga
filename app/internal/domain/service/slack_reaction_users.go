@@ -19,6 +19,8 @@ package service
 import (
 	"context"
 
+	"github.com/moneyforward/auriga/app/pkg/slack"
+
 	"github.com/moneyforward/auriga/app/pkg/slice"
 
 	repository2 "github.com/moneyforward/auriga/app/internal/domain/repository"
@@ -59,11 +61,10 @@ func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reac
 	var userIDs []string
 	var targetReactions []*model.SlackReaction
 	for _, reaction := range reactions {
-		for _, st := range model.ReactionSkinTones {
-			if reaction.Name == reactionName || reaction.Name == reactionName+"::"+st {
-				targetReactions = append(targetReactions, reaction)
-				break
-			}
+		rn := slack.ExtractReactionName(reaction.Name)
+		if slack.RemoveSkinToneFromReaction(rn) == reactionName {
+			targetReactions = append(targetReactions, reaction)
+			break
 		}
 	}
 	if len(targetReactions) == 0 {
