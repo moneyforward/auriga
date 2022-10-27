@@ -21,10 +21,12 @@ import (
 	"strings"
 )
 
+// IsReaction judges whether an argument is reaction string or not.
 func IsReaction(reaction string) bool {
 	return strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":")
 }
 
+// ExtractReactionName extracts reaction name (reaction) from reaction string (:reaction:)
 func ExtractReactionName(reaction string) string {
 	return strings.ReplaceAll(reaction, ":", "")
 }
