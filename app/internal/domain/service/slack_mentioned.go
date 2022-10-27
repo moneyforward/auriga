@@ -51,7 +51,7 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 	if s.isSlackReaction(reaction) {
 		return &model.MentionParseResult{
 			Message:  message,
-			Reaction: s.extractSlackReactionName(s.removeSkinTone(reaction)),
+			Reaction: s.extractReactionName(s.removeSkinTone(reaction)),
 		}
 	}
 	// invalid argument (not emoji)
@@ -65,7 +65,7 @@ func (s *slackMentionedService) isSlackReaction(reaction string) bool {
 	return strings.HasPrefix(reaction, ":") && strings.HasSuffix(reaction, ":")
 }
 
-func (s *slackMentionedService) extractSlackReactionName(reaction string) string {
+func (s *slackMentionedService) extractReactionName(reaction string) string {
 	return strings.ReplaceAll(reaction, ":", "")
 }
 
