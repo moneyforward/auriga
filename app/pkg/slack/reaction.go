@@ -30,7 +30,7 @@ func ExtractReactionName(reaction string) string {
 }
 
 // regReactionSkinTone is regexp which indicate skin-tone names supported by Slack
-var regReactionSkinTone = regexp.MustCompile("skin-tone-\\d+")
+var regReactionSkinTone = regexp.MustCompile(`skin-tone-\d+`)
 
 // RemoveSkinToneFromReaction uses regexp to remove the skin-tone string
 func RemoveSkinToneFromReaction(reaction string) string {
