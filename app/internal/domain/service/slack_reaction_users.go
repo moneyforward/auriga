@@ -19,6 +19,10 @@ package service
 import (
 	"context"
 
+	"github.com/moneyforward/auriga/app/pkg/slack"
+
+	"github.com/moneyforward/auriga/app/pkg/slice"
+
 	repository2 "github.com/moneyforward/auriga/app/internal/domain/repository"
 	"github.com/moneyforward/auriga/app/internal/model"
 )
@@ -53,18 +57,20 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 }
 
 // getReactionUserIDs get reaction users by reactionName
-func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reactions []*model.SlackReactions, reactionName string) []string {
+func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reactions []*model.SlackReaction, reactionName string) []string {
 	var userIDs []string
-	var targetReaction *model.SlackReactions
+	var targetReactions []*model.SlackReaction
 	for _, reaction := range reactions {
-		if reaction.Name == reactionName {
-			targetReaction = reaction
-			break
+		rn := slack.ExtractReactionName(reaction.Name)
+		if slack.RemoveSkinToneFromReaction(rn) == reactionName {
+			targetReactions = append(targetReactions, reaction)
 		}
 	}
-	if targetReaction == nil {
+	if len(targetReactions) == 0 {
 		return userIDs // no reaction members
 	}
-	userIDs = append(userIDs, targetReaction.UserIDs...)
-	return userIDs
+	for _, tr := range targetReactions {
+		userIDs = append(userIDs, tr.UserIDs...)
+	}
+	return slice.ToStringSet(userIDs)
 }

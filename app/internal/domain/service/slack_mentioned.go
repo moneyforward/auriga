@@ -19,6 +19,8 @@ package service
 import (
 	"strings"
 
+	"github.com/moneyforward/auriga/app/pkg/slack"
+
 	"github.com/moneyforward/auriga/app/internal/model"
 )
 
@@ -45,10 +47,12 @@ func (s *slackMentionedService) Parse(message string) *model.MentionParseResult 
 			Message: message,
 		}
 	}
-	if strings.HasPrefix(tmp[1], ":") && strings.HasSuffix(tmp[1], ":") {
+	reaction := tmp[1]
+	if slack.IsReaction(reaction) {
 		return &model.MentionParseResult{
-			Message:  message,
-			Reaction: strings.ReplaceAll(tmp[1], ":", ""),
+			Message: message,
+			Reaction: slack.ExtractReactionName(
+				slack.RemoveSkinToneFromReaction(reaction)),
 		}
 	}
 	// invalid argument (not emoji)

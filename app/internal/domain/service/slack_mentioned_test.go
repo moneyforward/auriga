@@ -68,6 +68,14 @@ func Test_slackMentionedService_Parse(t *testing.T) {
 			},
 		},
 		{
+			name: "OK: when a reaction with skin-tone is specified",
+			args: args{message: "@auriga :+1::skin-tone-2:"},
+			want: &model.MentionParseResult{
+				Message:  "@auriga :+1::skin-tone-2:",
+				Reaction: "+1",
+			},
+		},
+		{
 			name: "NG: reaction is formatted incorrectly.",
 			args: args{message: "@auriga :tmp"},
 			want: &model.MentionParseResult{

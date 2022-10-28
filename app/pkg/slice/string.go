@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package model
+package slice
 
-type SlackMessage struct {
-	ChannelID string
-	Reactions []*SlackReaction
-}
-
-type SlackReaction struct {
-	Name    string
-	UserIDs []string
-}
-
-type SlackUserEmail struct {
-	ID    string
-	Email string
+// ToStringSet remove duplicated string element
+// TODO: Update 1.18 and use generics
+func ToStringSet(s []string) []string {
+	var set []string
+	m := map[string]bool{}
+	for _, e := range s {
+		if !m[e] {
+			m[e] = true
+			set = append(set, e)
+		}
+	}
+	return set
 }

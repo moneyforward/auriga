@@ -37,7 +37,7 @@ func Test_slackReactionUsersService_ListUsersEmailByReaction(t *testing.T) {
 	}
 	sampleMessage := &model.SlackMessage{
 		ChannelID: "sampleCID",
-		Reactions: []*model.SlackReactions{
+		Reactions: []*model.SlackReaction{
 			{
 				Name:    "join",
 				UserIDs: []string{"user01", "user02"},
@@ -130,10 +130,10 @@ func Test_slackReactionUsersService_ListUsersEmailByReaction(t *testing.T) {
 
 func Test_slackReactionUsersService_getReactionUserIDs(t *testing.T) {
 	type args struct {
-		reactions    []*model.SlackReactions
+		reactions    []*model.SlackReaction
 		reactionName string
 	}
-	slackReactions := []*model.SlackReactions{
+	slackReactions := []*model.SlackReaction{
 		{
 			Name:    "join",
 			UserIDs: []string{"user01", "user02"},
