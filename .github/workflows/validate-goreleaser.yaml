@@ -1,0 +1,23 @@
+name: validate goreleaser.yml
+
+on: push
+
+jobs:
+  validate-goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.17
+      - name: Validate .goreleaser.yml
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          version: latest
+          args: release --snapshot --skip-publish --rm-dist --debug
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
