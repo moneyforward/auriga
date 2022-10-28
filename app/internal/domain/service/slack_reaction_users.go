@@ -64,7 +64,6 @@ func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reac
 		rn := slack.ExtractReactionName(reaction.Name)
 		if slack.RemoveSkinToneFromReaction(rn) == reactionName {
 			targetReactions = append(targetReactions, reaction)
-			break
 		}
 	}
 	if len(targetReactions) == 0 {
