@@ -29,3 +29,16 @@ func ToStringSet(s []string) []string {
 	}
 	return set
 }
+
+// SplitStringSliceInChunks SplitStringSliceInChunk split slice in chunk
+// TODO: Update 1.18+ and use generics
+func SplitStringSliceInChunks(s []string, chunkSize int) (chunks [][]string) {
+	if chunkSize < 1 {
+		return append(chunks, s)
+	}
+	for chunkSize < len(s) {
+		chunks = append(chunks, s[:chunkSize])
+		s = s[chunkSize:]
+	}
+	return append(chunks, s)
+}
