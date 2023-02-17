@@ -43,13 +43,35 @@ func NewSlackReactionUsersService(factory repository2.Factory) *slackReactionUse
 	}
 }
 
+const (
+	// ChunkSizeOfChunkedListUserEmail chunk size of calling slackRepository.ListUsersEmail
+	ChunkSizeOfChunkedListUserEmail = 20
+)
+
+// chunkedListUsersEmail splits userID array into chunks,
+//　and calls slackRepository.ListUsersEmail for each chunk.
+func (s *slackReactionUsersService) chunkedListUsersEmail(ctx context.Context, userIDs []string) ([]*model.SlackUserEmail, error) {
+	chunkedUserIDsList := slice.SplitStringSliceInChunks(userIDs, ChunkSizeOfChunkedListUserEmail)
+	var slackUserEmails []*model.SlackUserEmail
+	for _, chunkedUserIDs := range chunkedUserIDsList {
+		userEmails, err := s.slackRepository.ListUsersEmail(ctx, chunkedUserIDs)
+		if err != nil {
+			return nil, err
+		}
+		for _, userEmail := range userEmails {
+			slackUserEmails = append(slackUserEmails, userEmail)
+		}
+	}
+	return slackUserEmails, nil
+}
+
 func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context, channelID, ts, reactionName string) ([]*model.SlackUserEmail, error) {
 	msg, err := s.slackRepository.GetParentMessage(ctx, channelID, ts)
 	if err != nil {
 		return nil, err
 	}
 	inviteUserIDs := s.getReactionUserIDs(ctx, msg.Reactions, reactionName)
-	inviteUserEmails, err := s.slackRepository.ListUsersEmail(ctx, inviteUserIDs)
+	inviteUserEmails, err := s.chunkedListUsersEmail(ctx, inviteUserIDs)
 	if err != nil {
 		return nil, err
 	}
