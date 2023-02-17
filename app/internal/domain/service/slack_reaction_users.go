@@ -58,9 +58,7 @@ func (s *slackReactionUsersService) chunkedListUsersEmail(ctx context.Context, u
 		if err != nil {
 			return nil, err
 		}
-		for _, userEmail := range userEmails {
-			slackUserEmails = append(slackUserEmails, userEmail)
-		}
+		slackUserEmails = append(slackUserEmails, userEmails...)
 	}
 	return slackUserEmails, nil
 }
