@@ -86,7 +86,7 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 			if tt.prepare != nil {
 				tt.prepare(msr)
 			}
-			s := &slackErrorResponseService{
+			s := &slackResponseService{
 				slackRepository: msr,
 				errorRepository: mer,
 			}
@@ -216,7 +216,7 @@ func Test_slackErrorResponseService_ReplyError(t *testing.T) {
 			if tt.prepare != nil {
 				tt.prepare(mer, msr)
 			}
-			s := &slackErrorResponseService{
+			s := &slackResponseService{
 				slackRepository: msr,
 				errorRepository: mer,
 			}
@@ -286,7 +286,7 @@ func Test_slackErrorResponseService_ReplyHelp(t *testing.T) {
 			if tt.prepare != nil {
 				tt.prepare(mer, msr)
 			}
-			s := &slackErrorResponseService{
+			s := &slackResponseService{
 				slackRepository: msr,
 				errorRepository: mer,
 			}

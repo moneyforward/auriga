@@ -31,19 +31,19 @@ type SlackResponseService interface {
 	ReplyHelp(ctx context.Context, event *slackevents.AppMentionEvent) error
 }
 
-type slackErrorResponseService struct {
+type slackResponseService struct {
 	slackRepository repository.SlackRepository
 	errorRepository repository.ErrorRepository
 }
 
-func NewSlackResponseService(factory repository.Factory) *slackErrorResponseService {
-	return &slackErrorResponseService{
+func NewSlackResponseService(factory repository.Factory) *slackResponseService {
+	return &slackResponseService{
 		slackRepository: factory.SlackRepository(),
 		errorRepository: factory.ErrorRepository(),
 	}
 }
 
-func (s *slackErrorResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
+func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
 	msg := "参加者一覧\n"
 	for _, email := range emails {
 		msg += email.Email
@@ -58,7 +58,7 @@ func (s *slackErrorResponseService) ReplyEmailList(ctx context.Context, event *s
 	return err
 }
 
-func (s *slackErrorResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
+func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
 	var msg string
 	if s.errorRepository.ErrThreadNotFound(err) {
 		msg += "スレッドで呼び出してね:neko_namida:"
@@ -75,7 +75,7 @@ func (s *slackErrorResponseService) ReplyError(ctx context.Context, event *slack
 	return err
 }
 
-func (s *slackErrorResponseService) ReplyHelp(ctx context.Context, event *slackevents.AppMentionEvent) error {
+func (s *slackResponseService) ReplyHelp(ctx context.Context, event *slackevents.AppMentionEvent) error {
 	msg := "[使い方]\n" +
 		"1. スレッドで `@Auriga :sanka:` のようにAurigaを呼び出し、リアクションを指定してください。\n" +
 		"2. スレッドの開始メッセージに指定のリアクションをしたユーザのメールアドレス一覧を返します。\n" +
