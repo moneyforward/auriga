@@ -33,10 +33,11 @@ func ToStringSet(s []string) []string {
 // SplitStringSliceInChunks SplitStringSliceInChunk split slice in chunk
 // if you set chunkSize is less than 1, this function returns a 2 dimensional slice with 1 chunk ([][]string{s}).
 // TODO: Update 1.18+ and use generics
-func SplitStringSliceInChunks(s []string, chunkSize int) (chunks [][]string) {
+func SplitStringSliceInChunks(s []string, chunkSize int) [][]string {
 	if chunkSize < 1 {
-		return append(chunks, s)
+		return [][]string{s}
 	}
+	chunks := make([][]string, 0, len(s)/chunkSize+1)
 	for chunkSize < len(s) {
 		chunks = append(chunks, s[:chunkSize])
 		s = s[chunkSize:]
