@@ -57,7 +57,7 @@ const (
 // postEmailList method posts emailList using slack postMessageAPI.
 // The chunkedLines are generated and requested for each chunk,
 // because of considering the limit the number of characters of slackAPI.
-func (s *slackResponseService) postEmailList(ctx context.Context, channelID, message, ts string) error {
+func (s *slackResponseService) postEmailList(ctx context.Context, channelID, message, ts string, lineSizeOfPostEmailList int) error {
 	lines := strings.Split(message, "\n")
 	chunkedLines := slice.SplitStringSliceInChunks(lines, lineSizeOfPostEmailList)
 	for _, chunkedLine := range chunkedLines {
@@ -75,7 +75,7 @@ func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slacke
 		msg += email.Email
 		msg += "\n"
 	}
-	return s.postEmailList(ctx, event.Channel, msg, event.ThreadTimeStamp)
+	return s.postEmailList(ctx, event.Channel, msg, event.ThreadTimeStamp, lineSizeOfPostEmailList)
 }
 
 func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
