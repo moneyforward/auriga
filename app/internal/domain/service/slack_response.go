@@ -19,6 +19,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/moneyforward/auriga/app/pkg/slice"
 
 	"github.com/moneyforward/auriga/app/internal/domain/repository"
 	"github.com/moneyforward/auriga/app/internal/model"
@@ -43,19 +46,36 @@ func NewSlackResponseService(factory repository.Factory) *slackResponseService {
 	}
 }
 
+const (
+	// lineSizeOfPostEmailList is limit number of line when Auriga reply Email List message.
+	// According to Slack API Documentation, the limit number of characters of postMessageAPI is 4000 for the best results.
+	// If the average length of email addresses sent at one time exceeds approximately 80, there is a risk of error within this method.
+	// but, it is the number we can afford.
+	lineSizeOfPostEmailList = 50
+)
+
+// postEmailList method posts emailList using slack postMessageAPI.
+// The chunkedLines are generated and requested for each chunk,
+// because of considering the limit the number of characters of slackAPI.
+func (s *slackResponseService) postEmailList(ctx context.Context, channelID, message, ts string) error {
+	lines := strings.Split(message, "\n")
+	chunkedLines := slice.SplitStringSliceInChunks(lines, lineSizeOfPostEmailList)
+	for _, chunkedLine := range chunkedLines {
+		err := s.slackRepository.PostMessage(ctx, channelID, strings.Join(chunkedLine, "\n"), ts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
 	msg := "参加者一覧\n"
 	for _, email := range emails {
 		msg += email.Email
 		msg += "\n"
 	}
-	err := s.slackRepository.PostMessage(
-		ctx,
-		event.Channel,
-		fmt.Sprint(msg),
-		event.ThreadTimeStamp,
-	)
-	return err
+	return s.postEmailList(ctx, event.Channel, msg, event.ThreadTimeStamp)
 }
 
 func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
