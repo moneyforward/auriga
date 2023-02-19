@@ -52,7 +52,7 @@ const (
 //　and calls slackRepository.ListUsersEmail for each chunk.
 func (s *slackReactionUsersService) chunkedListUsersEmail(ctx context.Context, userIDs []string) ([]*model.SlackUserEmail, error) {
 	chunkedUserIDsList := slice.SplitStringSliceInChunks(userIDs, ChunkSizeOfChunkedListUserEmail)
-	var slackUserEmails []*model.SlackUserEmail
+	slackUserEmails := make([]*model.SlackUserEmail, 0, len(chunkedUserIDsList))
 	for _, chunkedUserIDs := range chunkedUserIDsList {
 		userEmails, err := s.slackRepository.ListUsersEmail(ctx, chunkedUserIDs)
 		if err != nil {
