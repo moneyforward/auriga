@@ -28,6 +28,60 @@ import (
 	"github.com/slack-go/slack/slackevents"
 )
 
+func Test_slackResponseService_postEmailList(t *testing.T) {
+	type args struct {
+		channelID               string
+		message                 string
+		ts                      string
+		lineSizeOfPostEmailList int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		prepare func(msr *mock_repository.MockSlackRepository)
+		wantErr bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				channelID:               "cid",
+				message:                 "参加者一覧\nuser01@example.com\nuser02@example.com\nuser03@example.com",
+				ts:                      "ts",
+				lineSizeOfPostEmailList: 2,
+			},
+			prepare: func(msr *mock_repository.MockSlackRepository) {
+				gomock.InOrder(
+					msr.EXPECT().PostMessage(
+						gomock.Any(), "cid", "参加者一覧\nuser01@example.com", "ts").
+						Return(nil),
+					msr.EXPECT().PostMessage(
+						gomock.Any(), "cid", "user02@example.com\nuser03@example.com", "ts").
+						Return(nil),
+				)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			msr := mock_repository.NewMockSlackRepository(ctrl)
+			mer := mock_repository.NewMockErrorRepository(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(msr)
+			}
+			s := &slackResponseService{
+				slackRepository: msr,
+				errorRepository: mer,
+			}
+			if err := s.postEmailList(ctx, tt.args.channelID, tt.args.message, tt.args.ts, tt.args.lineSizeOfPostEmailList); (err != nil) != tt.wantErr {
+				t.Errorf("postEmailList() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 	type args struct {
 		event  *slackevents.AppMentionEvent
