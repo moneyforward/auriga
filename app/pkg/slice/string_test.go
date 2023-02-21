@@ -93,7 +93,15 @@ func TestSplitStringSliceInChunks(t *testing.T) {
 			want: [][]string{{}},
 		},
 		{
-			name: "OK: s is empty and chunkSize is more than 0",
+			name: "OK: s is empty and chunkSize is equal to 1",
+			args: args{
+				s:         []string{},
+				chunkSize: 1,
+			},
+			want: [][]string{{}},
+		},
+		{
+			name: "OK: s is empty and chunkSize is more than 1",
 			args: args{
 				s:         []string{},
 				chunkSize: 1,
