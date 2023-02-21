@@ -157,7 +157,7 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				msr.EXPECT().PostMessage(gomock.Any(), "sampleChannel",
-					"参加者一覧\nsample01@example.com\nsample02@example.com\n",
+					"参加者一覧\nsample01@example.com\nsample02@example.com",
 					"sampleThreadTimeStamp").Return(nil)
 			},
 		},
@@ -175,7 +175,7 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				msr.EXPECT().PostMessage(gomock.Any(), "sampleChannel",
-					"参加者一覧\nsample01@example.com\nsample02@example.com\n",
+					"参加者一覧\nsample01@example.com\nsample02@example.com",
 					"sampleThreadTimeStamp").Return(errors.New("sample error"))
 			},
 			wantErr: true,

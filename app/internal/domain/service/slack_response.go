@@ -76,9 +76,9 @@ func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slacke
 	if len(emails) <= lineSizeOfPostEmailList-1 {
 		var b strings.Builder
 		b.Grow(len(emails) + 1)
-		b.WriteString("参加者一覧\n")
+		b.WriteString("参加者一覧")
 		for _, email := range emails {
-			b.WriteString(email.Email)
+			b.WriteString("\n" + email.Email)
 		}
 		return s.slackRepository.PostMessage(ctx, event.Channel, b.String(), event.ThreadTimeStamp)
 	}
