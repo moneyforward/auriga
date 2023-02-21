@@ -57,8 +57,11 @@ const (
 // postEmailList method posts emailList using slack postMessageAPI.
 // The chunkedLines are generated and requested for each chunk,
 // because of considering the limit the number of characters of slackAPI.
-func (s *slackResponseService) postEmailList(ctx context.Context, channelID, message, ts string, lineSizeOfPostEmailList int) error {
-	lines := strings.Split(message, "\n")
+func (s *slackResponseService) postEmailList(ctx context.Context, channelID string, emails []*model.SlackUserEmail, ts string) error {
+	lines := append(make([]string, 0, len(emails)+1), "参加者一覧")
+	for _, email := range emails {
+		lines = append(lines, email.Email)
+	}
 	chunkedLines := slice.SplitStringSliceInChunks(lines, lineSizeOfPostEmailList)
 	for _, chunkedLine := range chunkedLines {
 		err := s.slackRepository.PostMessage(ctx, channelID, strings.Join(chunkedLine, "\n"), ts)
@@ -70,12 +73,17 @@ func (s *slackResponseService) postEmailList(ctx context.Context, channelID, mes
 }
 
 func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
-	msg := "参加者一覧\n"
-	for _, email := range emails {
-		msg += email.Email
-		msg += "\n"
+	if len(emails) <= lineSizeOfPostEmailList-1 {
+		var b strings.Builder
+		b.Grow(len(emails) + 1)
+		b.WriteString("参加者一覧\n")
+		for _, email := range emails {
+			b.WriteString(email.Email)
+		}
+		return s.slackRepository.PostMessage(ctx, event.Channel, b.String(), event.ThreadTimeStamp)
 	}
-	return s.postEmailList(ctx, event.Channel, msg, event.ThreadTimeStamp, lineSizeOfPostEmailList)
+
+	return s.postEmailList(ctx, event.Channel, emails, event.ThreadTimeStamp)
 }
 
 func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
