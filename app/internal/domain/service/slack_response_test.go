@@ -57,10 +57,11 @@ func convertEmailsToStrings(emails []*model.SlackUserEmail) []string {
 }
 
 func Test_slackResponseService_postEmailList(t *testing.T) {
-	channelID := "cid"
-	ts := "ts"
+
 	type args struct {
 		emails []*model.SlackUserEmail
+		cid    string
+		ts     string
 	}
 	tests := []struct {
 		name    string
@@ -72,11 +73,13 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 			name: "OK: number of emails = 1",
 			args: args{
 				emails: createEmails(0, 1),
+				ts:     "ts",
+				cid:    "cid",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
 					msr.EXPECT().PostMessage(
-						gomock.Any(), channelID, createMessage("参加者一覧", createEmails(0, 1)), ts).
+						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, 1)), "ts").
 						Return(nil),
 				)
 			},
@@ -85,11 +88,13 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 			name: "OK: number of emails = lineSizeOfPostEmailList - 1",
 			args: args{
 				emails: createEmails(0, lineSizeOfPostEmailList-1),
+				ts:     "ts",
+				cid:    "cid",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
 					msr.EXPECT().PostMessage(
-						gomock.Any(), channelID, createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), ts).
+						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), "ts").
 						Return(nil),
 				)
 			},
@@ -98,14 +103,16 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 			name: "OK: number of emails = lineSizeOfPostEmailList",
 			args: args{
 				emails: createEmails(0, lineSizeOfPostEmailList),
+				ts:     "ts",
+				cid:    "cid",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
 					msr.EXPECT().PostMessage(
-						gomock.Any(), channelID, createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), ts).
+						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), "ts").
 						Return(nil),
 					msr.EXPECT().PostMessage(
-						gomock.Any(), channelID, createMessage("", createEmails(lineSizeOfPostEmailList-1, 1)), ts).
+						gomock.Any(), "cid", createMessage("", createEmails(lineSizeOfPostEmailList-1, 1)), "ts").
 						Return(nil),
 				)
 			},
@@ -125,7 +132,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				slackRepository: msr,
 				errorRepository: mer,
 			}
-			if err := s.postEmailList(ctx, channelID, tt.args.emails, ts); (err != nil) != tt.wantErr {
+			if err := s.postEmailList(ctx, tt.args.cid, tt.args.emails, tt.args.ts); (err != nil) != tt.wantErr {
 				t.Errorf("postEmailList() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
