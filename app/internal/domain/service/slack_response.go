@@ -75,7 +75,6 @@ func (s *slackResponseService) postEmailList(ctx context.Context, channelID stri
 func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
 	if len(emails) <= lineSizeOfPostEmailList-1 {
 		var b strings.Builder
-		b.Grow(len(emails) + 1)
 		b.WriteString("参加者一覧")
 		for _, email := range emails {
 			b.WriteString("\n" + email.Email)
