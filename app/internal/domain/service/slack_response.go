@@ -19,6 +19,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/moneyforward/auriga/app/pkg/slice"
 
 	"github.com/moneyforward/auriga/app/internal/domain/repository"
 	"github.com/moneyforward/auriga/app/internal/model"
@@ -31,34 +34,58 @@ type SlackResponseService interface {
 	ReplyHelp(ctx context.Context, event *slackevents.AppMentionEvent) error
 }
 
-type slackErrorResponseService struct {
+type slackResponseService struct {
 	slackRepository repository.SlackRepository
 	errorRepository repository.ErrorRepository
 }
 
-func NewSlackResponseService(factory repository.Factory) *slackErrorResponseService {
-	return &slackErrorResponseService{
+func NewSlackResponseService(factory repository.Factory) *slackResponseService {
+	return &slackResponseService{
 		slackRepository: factory.SlackRepository(),
 		errorRepository: factory.ErrorRepository(),
 	}
 }
 
-func (s *slackErrorResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
-	msg := "参加者一覧\n"
+const (
+	// lineSizeOfPostEmailList is limit number of line when Auriga reply Email List message.
+	// According to Slack API Documentation, the limit number of characters of postMessageAPI is 4000 for the best results.
+	// If the average length of email addresses sent at one time exceeds approximately 80, there is a risk of error within this method.
+	// but, it is the number we can afford.
+	lineSizeOfPostEmailList = 50
+)
+
+// postEmailList method posts emailList using slack postMessageAPI.
+// The chunkedLines are generated and requested for each chunk,
+// because of considering the limit the number of characters of slackAPI.
+func (s *slackResponseService) postEmailList(ctx context.Context, channelID string, emails []*model.SlackUserEmail, ts string) error {
+	lines := append(make([]string, 0, len(emails)+1), "参加者一覧")
 	for _, email := range emails {
-		msg += email.Email
-		msg += "\n"
+		lines = append(lines, email.Email)
 	}
-	err := s.slackRepository.PostMessage(
-		ctx,
-		event.Channel,
-		fmt.Sprint(msg),
-		event.ThreadTimeStamp,
-	)
-	return err
+	chunkedLines := slice.SplitStringSliceInChunks(lines, lineSizeOfPostEmailList)
+	for _, chunkedLine := range chunkedLines {
+		err := s.slackRepository.PostMessage(ctx, channelID, strings.Join(chunkedLine, "\n"), ts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (s *slackErrorResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
+func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slackevents.AppMentionEvent, emails []*model.SlackUserEmail) error {
+	if len(emails) <= lineSizeOfPostEmailList-1 {
+		var b strings.Builder
+		b.WriteString("参加者一覧")
+		for _, email := range emails {
+			b.WriteString("\n" + email.Email)
+		}
+		return s.slackRepository.PostMessage(ctx, event.Channel, b.String(), event.ThreadTimeStamp)
+	}
+
+	return s.postEmailList(ctx, event.Channel, emails, event.ThreadTimeStamp)
+}
+
+func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
 	var msg string
 	if s.errorRepository.ErrThreadNotFound(err) {
 		msg += "スレッドで呼び出してね:neko_namida:"
@@ -75,7 +102,7 @@ func (s *slackErrorResponseService) ReplyError(ctx context.Context, event *slack
 	return err
 }
 
-func (s *slackErrorResponseService) ReplyHelp(ctx context.Context, event *slackevents.AppMentionEvent) error {
+func (s *slackResponseService) ReplyHelp(ctx context.Context, event *slackevents.AppMentionEvent) error {
 	msg := "[使い方]\n" +
 		"1. スレッドで `@Auriga :sanka:` のようにAurigaを呼び出し、リアクションを指定してください。\n" +
 		"2. スレッドの開始メッセージに指定のリアクションをしたユーザのメールアドレス一覧を返します。\n" +
