@@ -68,18 +68,19 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	inviteUserIDs := s.getReactionUserIDs(ctx, msg.Reactions, reactionName)
-	inviteUserEmails, err := s.chunkedListUsersEmail(ctx, inviteUserIDs)
+	reactedUserIDs := s.getReactionUserIDs(ctx, msg.Reactions, reactionName)
+	reactedUserEmails, err := s.chunkedListUsersEmail(ctx, reactedUserIDs)
 	if err != nil {
 		return nil, err
 	}
-	return inviteUserEmails, nil
+	return reactedUserEmails, nil
 }
 
 // getReactionUserIDs get reaction users by reactionName
 func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reactions []*model.SlackReaction, reactionName string) []string {
 	var userIDs []string
 	var targetReactions []*model.SlackReaction
+	// filtered reactions by reactionName
 	for _, reaction := range reactions {
 		rn := slack.ExtractReactionName(reaction.Name)
 		if slack.RemoveSkinToneFromReaction(rn) == reactionName {
