@@ -28,6 +28,7 @@ type Client interface {
 	PostEphemeral(ctx context.Context, channelID, userID, ts, message string) error
 	GetConversationReplies(ctx context.Context, channelID, ts string) ([]slack.Message, error)
 	GetUsersInfo(ctx context.Context, userID ...string) (*[]slack.User, error)
+	GetReaction(ctx context.Context, channelID, ts string, full bool) ([]slack.ItemReaction, error)
 
 	GetClient() *slack.Client
 	GetAppUserID() string
@@ -116,6 +117,15 @@ func (c *client) GetUsersInfo(ctx context.Context, userID ...string) (*[]slack.U
 	}
 
 	return users, nil
+}
+
+func (c *client) GetReaction(ctx context.Context, channelID, ts string, full bool) ([]slack.ItemReaction, error) {
+	return c.Client.GetReactionsContext(ctx, slack.ItemRef{
+		Channel:   channelID,
+		Timestamp: ts,
+	}, slack.GetReactionsParameters{
+		Full: full,
+	})
 }
 
 func (c *client) GetClient() *slack.Client {
