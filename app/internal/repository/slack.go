@@ -64,10 +64,12 @@ func (r *slackRepository) GetParentMessage(ctx context.Context, channelID, ts st
 			reactions = append(reactions, &model.SlackReaction{
 				Name:    reaction.Name,
 				UserIDs: reaction.Users,
+				Count:   reaction.Count,
 			})
 		}
 		return &model.SlackMessage{
 			ChannelID: parentMessage.Channel,
+			Timestamp: parentMessage.Timestamp,
 			Reactions: reactions,
 		}, nil
 	}
@@ -92,4 +94,20 @@ func (r *slackRepository) ListUsersEmail(ctx context.Context, userID []string) (
 		})
 	}
 	return slackUsers, nil
+}
+
+func (r *slackRepository) GetReactions(ctx context.Context, channelID, ts string, full bool) ([]*model.SlackReaction, error) {
+	reactions, err := r.client.GetReaction(ctx, channelID, ts, full)
+	if err != nil {
+		return nil, err
+	}
+	ret := make([]*model.SlackReaction, 0, len(reactions))
+	for _, reaction := range reactions {
+		ret = append(ret, &model.SlackReaction{
+			Name:    reaction.Name,
+			UserIDs: reaction.Users,
+			Count:   reaction.Count,
+		})
+	}
+	return ret, nil
 }

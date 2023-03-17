@@ -18,11 +18,13 @@ package model
 
 type SlackMessage struct {
 	ChannelID string
+	Timestamp string
 	Reactions []*SlackReaction
 }
 
 type SlackReaction struct {
 	Name    string
+	Count   int
 	UserIDs []string
 }
 

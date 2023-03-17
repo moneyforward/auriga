@@ -68,12 +68,28 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
+	if s.IsNeededMoreFetches(msg.Reactions) {
+		msg.Reactions, err = s.getFullReactions(ctx, channelID, ts)
+		if err != nil {
+			return nil, err
+		}
+	}
 	reactedUserIDs := s.getReactionUserIDs(ctx, msg.Reactions, reactionName)
 	reactedUserEmails, err := s.chunkedListUsersEmail(ctx, reactedUserIDs)
 	if err != nil {
 		return nil, err
 	}
 	return reactedUserEmails, nil
+}
+
+// IsNeededMoreFetches returns true if more fetches is required
+func (s *slackReactionUsersService) IsNeededMoreFetches(reactions []*model.SlackReaction) bool {
+	for _, r := range reactions {
+		if r.Count != len(r.UserIDs) {
+			return true
+		}
+	}
+	return false
 }
 
 // getReactionUserIDs get reaction users by reactionName
@@ -94,4 +110,8 @@ func (s *slackReactionUsersService) getReactionUserIDs(ctx context.Context, reac
 		userIDs = append(userIDs, tr.UserIDs...)
 	}
 	return slice.ToStringSet(userIDs)
+}
+
+func (s *slackReactionUsersService) getFullReactions(ctx context.Context, channelID, ts string) ([]*model.SlackReaction, error) {
+	return s.slackRepository.GetReactions(ctx, channelID, ts, true)
 }
