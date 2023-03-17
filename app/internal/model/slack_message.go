@@ -18,7 +18,6 @@ package model
 
 type SlackMessage struct {
 	ChannelID string
-	Timestamp string
 	Reactions []*SlackReaction
 }
 
