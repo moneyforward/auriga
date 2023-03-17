@@ -69,7 +69,6 @@ func (r *slackRepository) GetParentMessage(ctx context.Context, channelID, ts st
 		}
 		return &model.SlackMessage{
 			ChannelID: parentMessage.Channel,
-			Timestamp: parentMessage.Timestamp,
 			Reactions: reactions,
 		}, nil
 	}
