@@ -68,7 +68,7 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	if s.IsNeededMoreFetches(msg.Reactions) {
+	if s.isReactionRefetchNeeded(msg.Reactions) {
 		msg.Reactions, err = s.getFullReactions(ctx, channelID, ts)
 		if err != nil {
 			return nil, err
@@ -82,8 +82,8 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 	return reactedUserEmails, nil
 }
 
-// IsNeededMoreFetches returns true if more fetches is required
-func (s *slackReactionUsersService) IsNeededMoreFetches(reactions []*model.SlackReaction) bool {
+// isReactionRefetchNeeded returns true if more fetches is required
+func (s *slackReactionUsersService) isReactionRefetchNeeded(reactions []*model.SlackReaction) bool {
 	for _, r := range reactions {
 		if r.Count != len(r.UserIDs) {
 			return true
