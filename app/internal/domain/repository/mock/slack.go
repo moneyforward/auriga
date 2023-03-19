@@ -50,21 +50,6 @@ func (mr *MockSlackRepositoryMockRecorder) GetParentMessage(ctx, channelID, ts i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParentMessage", reflect.TypeOf((*MockSlackRepository)(nil).GetParentMessage), ctx, channelID, ts)
 }
 
-// GetReactions mocks base method.
-func (m *MockSlackRepository) GetReactions(ctx context.Context, channelID, ts string, full bool) ([]*model.SlackReaction, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetReactions", ctx, channelID, ts, full)
-	ret0, _ := ret[0].([]*model.SlackReaction)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetReactions indicates an expected call of GetReactions.
-func (mr *MockSlackRepositoryMockRecorder) GetReactions(ctx, channelID, ts, full interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReactions", reflect.TypeOf((*MockSlackRepository)(nil).GetReactions), ctx, channelID, ts, full)
-}
-
 // ListUsersEmail mocks base method.
 func (m *MockSlackRepository) ListUsersEmail(ctx context.Context, userID []string) ([]*model.SlackUserEmail, error) {
 	m.ctrl.T.Helper()

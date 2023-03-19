@@ -79,58 +79,6 @@ func Test_slackReactionUsersService_ListUsersEmailByReaction(t *testing.T) {
 			},
 		},
 		{
-			name: "OK: There is difference between len(Reaction.UserIDs) and Reaction.Count",
-			args: args{
-				channelID: "sampleCID", ts: "sampleTs", reactionName: "reactionSample",
-			},
-			prepare: func(msr *mock_repository.MockSlackRepository) {
-				gomock.InOrder(
-					msr.EXPECT().GetParentMessage(gomock.Any(), "sampleCID", "sampleTs").Return(
-						&model.SlackMessage{
-							ChannelID: "sampleCID",
-							Reactions: []*model.SlackReaction{
-								{
-									Name:    "join",
-									UserIDs: []string{"user01", "user02"},
-									Count:   2,
-								},
-								{
-									Name:    "reactionSample",
-									UserIDs: []string{"user02", "user03"},
-									Count:   4, // number of counts that need to be re-fetched
-								},
-							},
-						}, nil),
-					msr.EXPECT().GetReactions(gomock.Any(), "sampleCID", "sampleTs", true).Return(
-						[]*model.SlackReaction{
-							{
-								Name:    "join",
-								UserIDs: []string{"user01", "user02"},
-								Count:   2,
-							},
-							{
-								Name:    "reactionSample",
-								UserIDs: []string{"user02", "user03", "user04", "user05"}, // fully fetched
-								Count:   4,
-							},
-						}, nil),
-					msr.EXPECT().ListUsersEmail(gomock.Any(), []string{"user02", "user03", "user04", "user05"}).Return(
-						[]*model.SlackUserEmail{
-							{ID: "user02", Email: "user02@example.com"},
-							{ID: "user03", Email: "user03@example.com"},
-							{ID: "user04", Email: "user04@example.com"},
-							{ID: "user05", Email: "user05@example.com"},
-						}, nil),
-				)
-			},
-			want: []*model.SlackUserEmail{
-				{ID: "user02", Email: "user02@example.com"},
-				{ID: "user03", Email: "user03@example.com"},
-				{ID: "user04", Email: "user04@example.com"},
-				{ID: "user05", Email: "user05@example.com"},
-			},
-		},
-		{
 			name: "NG: error in GetParentMessage",
 			args: args{
 				channelID: "sampleCID", ts: "sampleTs", reactionName: "reactionSample",
@@ -153,35 +101,6 @@ func Test_slackReactionUsersService_ListUsersEmailByReaction(t *testing.T) {
 					msr.EXPECT().GetParentMessage(gomock.Any(), "sampleCID", "sampleTs").Return(
 						sampleMessage, nil),
 					msr.EXPECT().ListUsersEmail(gomock.Any(), []string{"user02", "user03"}).Return(
-						nil, errors.New("sample_error")),
-				)
-			},
-			wantErr: true,
-		},
-		{
-			name: "NG: error in GetReactions",
-			args: args{
-				channelID: "sampleCID", ts: "sampleTs", reactionName: "reactionSample",
-			},
-			prepare: func(msr *mock_repository.MockSlackRepository) {
-				gomock.InOrder(
-					msr.EXPECT().GetParentMessage(gomock.Any(), "sampleCID", "sampleTs").Return(
-						&model.SlackMessage{
-							ChannelID: "sampleCID",
-							Reactions: []*model.SlackReaction{
-								{
-									Name:    "join",
-									UserIDs: []string{"user01", "user02"},
-									Count:   2,
-								},
-								{
-									Name:    "reactionSample",
-									UserIDs: []string{"user02", "user03"},
-									Count:   4, // number of counts that need to be re-fetched
-								},
-							},
-						}, nil),
-					msr.EXPECT().GetReactions(gomock.Any(), "sampleCID", "sampleTs", true).Return(
 						nil, errors.New("sample_error")),
 				)
 			},
