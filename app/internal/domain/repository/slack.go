@@ -35,8 +35,4 @@ type SlackRepository interface {
 
 	// ListUsersEmail fetches users email
 	ListUsersEmail(ctx context.Context, userID []string) ([]*model.SlackUserEmail, error)
-
-	// GetReactions fetches reactions
-	// full: if true always return the complete reaction list
-	GetReactions(ctx context.Context, channelID, ts string, full bool) ([]*model.SlackReaction, error)
 }
