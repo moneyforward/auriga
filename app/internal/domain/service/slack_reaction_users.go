@@ -83,6 +83,7 @@ func (s *slackReactionUsersService) ListUsersEmailByReaction(ctx context.Context
 }
 
 // isReactionRefetchNeeded returns true if more fetches is required
+// reactions[*].Count may be greater than len(reactions[*].UserIDs), at which point a fetch is required.
 func (s *slackReactionUsersService) isReactionRefetchNeeded(reactions []*model.SlackReaction) bool {
 	for _, r := range reactions {
 		if r.Count > len(r.UserIDs) {
