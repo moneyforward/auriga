@@ -23,6 +23,7 @@ type SlackMessage struct {
 
 type SlackReaction struct {
 	Name    string
+	Count   int
 	UserIDs []string
 }
 

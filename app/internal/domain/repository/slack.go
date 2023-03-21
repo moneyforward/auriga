@@ -24,8 +24,15 @@ import (
 )
 
 type SlackRepository interface {
+	// PostMessage send a message to a channel
 	PostMessage(ctx context.Context, channelID, message, ts string) error
+
+	// PostEphemeral sends an ephemeral message to user in a channel
 	PostEphemeral(ctx context.Context, channelID, message, ts, userID string) error
+
+	// GetParentMessage gets Slack message that started the thread
 	GetParentMessage(ctx context.Context, channelID, ts string) (*model.SlackMessage, error)
+
+	// ListUsersEmail fetches users email
 	ListUsersEmail(ctx context.Context, userID []string) ([]*model.SlackUserEmail, error)
 }

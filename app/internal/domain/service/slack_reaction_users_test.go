@@ -41,10 +41,12 @@ func Test_slackReactionUsersService_ListUsersEmailByReaction(t *testing.T) {
 			{
 				Name:    "join",
 				UserIDs: []string{"user01", "user02"},
+				Count:   2,
 			},
 			{
 				Name:    "reactionSample",
 				UserIDs: []string{"user02", "user03"},
+				Count:   2,
 			},
 		},
 	}
