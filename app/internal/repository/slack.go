@@ -60,7 +60,6 @@ func (r *slackRepository) GetParentMessage(ctx context.Context, channelID, ts st
 		return nil, errors.New("number of messages is zero")
 	}
 	parentMessage := msgs[0]
-	var reactions []*model.SlackReaction
 	if r.isIncompleteReaction(parentMessage.Reactions) {
 		// get full reactions
 		parentMessage.Reactions, err = r.client.GetReaction(ctx, channelID, ts, true)
@@ -68,6 +67,7 @@ func (r *slackRepository) GetParentMessage(ctx context.Context, channelID, ts st
 			return nil, err
 		}
 	}
+	var reactions []*model.SlackReaction
 	for _, reaction := range parentMessage.Reactions {
 		reactions = append(reactions, &model.SlackReaction{
 			Name:    reaction.Name,
