@@ -18,9 +18,10 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/moneyforward/auriga/app/pkg/slack"
+	"github.com/slack-go/slack"
+
+	pkgslack "github.com/moneyforward/auriga/app/pkg/slack"
 
 	"github.com/moneyforward/auriga/app/internal/model"
 
@@ -28,10 +29,10 @@ import (
 )
 
 type slackRepository struct {
-	client slack.Client
+	client pkgslack.Client
 }
 
-func newSlackRepository(client slack.Client) *slackRepository {
+func newSlackRepository(client pkgslack.Client) *slackRepository {
 	return &slackRepository{
 		client: client,
 	}
@@ -49,35 +50,52 @@ func (r *slackRepository) PostEphemeral(ctx context.Context, channelID, message,
 func (r *slackRepository) GetParentMessage(ctx context.Context, channelID, ts string) (*model.SlackMessage, error) {
 	msgs, err := r.client.GetConversationReplies(ctx, channelID, ts)
 	if err != nil {
-		if errors.Is(err, slack.ErrThreadNotFound) {
+		if errors.Is(err, pkgslack.ErrThreadNotFound) {
 			return nil, errThreadNotfound
 		} else {
 			return nil, err
 		}
 	}
-
-	if len(msgs) > 0 {
-		fmt.Printf("%#v \n", msgs[0])
-		parentMessage := msgs[0]
-		var reactions []*model.SlackReaction
-		for _, reaction := range parentMessage.Reactions {
-			reactions = append(reactions, &model.SlackReaction{
-				Name:    reaction.Name,
-				UserIDs: reaction.Users,
-			})
-		}
-		return &model.SlackMessage{
-			ChannelID: parentMessage.Channel,
-			Reactions: reactions,
-		}, nil
+	if len(msgs) <= 0 {
+		return nil, errors.New("number of messages is zero")
 	}
-	return nil, errors.New("number of messages is zero")
+	parentMessage := msgs[0]
+	if r.isIncompleteReaction(parentMessage.Reactions) {
+		// get full reactions
+		parentMessage.Reactions, err = r.client.GetReaction(ctx, channelID, ts, true)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var reactions []*model.SlackReaction
+	for _, reaction := range parentMessage.Reactions {
+		reactions = append(reactions, &model.SlackReaction{
+			Name:    reaction.Name,
+			UserIDs: reaction.Users,
+			Count:   reaction.Count,
+		})
+	}
+	return &model.SlackMessage{
+		ChannelID: parentMessage.Channel,
+		Reactions: reactions,
+	}, nil
+}
+
+// isIncompleteReaction returns true if more fetches is required
+// reactions[*].Count may be greater than len(reactions[*].Users), at which point a fetch is required.
+func (r *slackRepository) isIncompleteReaction(reactions []slack.ItemReaction) bool {
+	for _, reaction := range reactions {
+		if reaction.Count > len(reaction.Users) {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *slackRepository) ListUsersEmail(ctx context.Context, userID []string) ([]*model.SlackUserEmail, error) {
 	users, err := r.client.GetUsersInfo(ctx, userID...)
 	if err != nil {
-		if errors.Is(err, slack.ErrUserNotFound) {
+		if errors.Is(err, pkgslack.ErrUserNotFound) {
 			return nil, errUserNotFound
 		} else {
 			return nil, err
