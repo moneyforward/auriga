@@ -1,0 +1,30 @@
+{
+    "name": "Auriga",
+    "description": "Slackbot to make your scheduling smoothly",
+    "repository": "https://github.com/moneyforward/auriga",
+    "keywords": ["Google Calendar", "Slack", "Bot"],
+    "env": {
+        "SLACK_BOT_TOKEN": {
+            "description": "Slack bot token, for more detail see https://api.slack.com/bot-users",
+            "required": true
+        },
+        "SLACK_APP_TOKEN": {
+            "description": "Slack app token, for more detail see https://api.slack.com/bot-users",
+            "required": true
+        }
+    },
+    "formation": {
+        "web": {
+            "quantity": 0
+        },
+        "worker": {
+            "quantity": 1,
+            "size": "hobby"
+        }
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/go"
+        }
+    ]
+}
