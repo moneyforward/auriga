@@ -62,6 +62,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 		emails []*model.SlackUserEmail
 		cid    string
 		ts     string
+		user   string
 	}
 	tests := []struct {
 		name    string
@@ -75,11 +76,12 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				emails: createEmails(0, 1),
 				ts:     "ts",
 				cid:    "cid",
+				user:   "sampleUser",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
-					msr.EXPECT().PostMessage(
-						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, 1)), "ts").
+					msr.EXPECT().PostEphemeral(
+						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, 1)), "ts", "sampleUser").
 						Return(nil),
 				)
 			},
@@ -90,11 +92,12 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				emails: createEmails(0, lineSizeOfPostEmailList-1),
 				ts:     "ts",
 				cid:    "cid",
+				user:   "sampleUser",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
-					msr.EXPECT().PostMessage(
-						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), "ts").
+					msr.EXPECT().PostEphemeral(
+						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), "ts", "sampleUser").
 						Return(nil),
 				)
 			},
@@ -105,14 +108,15 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				emails: createEmails(0, lineSizeOfPostEmailList),
 				ts:     "ts",
 				cid:    "cid",
+				user:   "sampleUser",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
-					msr.EXPECT().PostMessage(
-						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), "ts").
+					msr.EXPECT().PostEphemeral(
+						gomock.Any(), "cid", createMessage("参加者一覧", createEmails(0, lineSizeOfPostEmailList-1)), "ts", "sampleUser").
 						Return(nil),
-					msr.EXPECT().PostMessage(
-						gomock.Any(), "cid", createMessage("", createEmails(lineSizeOfPostEmailList-1, 1)), "ts").
+					msr.EXPECT().PostEphemeral(
+						gomock.Any(), "cid", createMessage("", createEmails(lineSizeOfPostEmailList-1, 1)), "ts", "sampleUser").
 						Return(nil),
 				)
 			},
@@ -132,7 +136,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				slackRepository: msr,
 				errorRepository: mer,
 			}
-			if err := s.postEmailList(ctx, tt.args.cid, tt.args.emails, tt.args.ts); (err != nil) != tt.wantErr {
+			if err := s.postEmailList(ctx, tt.args.cid, tt.args.emails, tt.args.ts, tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("postEmailList() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -156,6 +160,7 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 				event: &slackevents.AppMentionEvent{
 					Channel:         "sampleChannel",
 					ThreadTimeStamp: "sampleThreadTimeStamp",
+					User:            "sampleUser",
 				},
 				emails: []*model.SlackUserEmail{
 					{Email: "sample01@example.com"},
@@ -163,9 +168,9 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 				},
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
-				msr.EXPECT().PostMessage(gomock.Any(), "sampleChannel",
+				msr.EXPECT().PostEphemeral(gomock.Any(), "sampleChannel",
 					"参加者一覧\nsample01@example.com\nsample02@example.com",
-					"sampleThreadTimeStamp").Return(nil)
+					"sampleThreadTimeStamp", "sampleUser").Return(nil)
 			},
 		},
 		{
@@ -174,6 +179,7 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 				event: &slackevents.AppMentionEvent{
 					Channel:         "sampleChannel",
 					ThreadTimeStamp: "sampleThreadTimeStamp",
+					User:            "sampleUser",
 				},
 				emails: []*model.SlackUserEmail{
 					{Email: "sample01@example.com"},
@@ -181,9 +187,9 @@ func Test_slackErrorResponseService_ReplyEmailList(t *testing.T) {
 				},
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
-				msr.EXPECT().PostMessage(gomock.Any(), "sampleChannel",
+				msr.EXPECT().PostEphemeral(gomock.Any(), "sampleChannel",
 					"参加者一覧\nsample01@example.com\nsample02@example.com",
-					"sampleThreadTimeStamp").Return(errors.New("sample error"))
+					"sampleThreadTimeStamp", "sampleUser").Return(errors.New("sample error"))
 			},
 			wantErr: true,
 		},
@@ -252,9 +258,9 @@ func Test_slackErrorResponseService_ReplyError(t *testing.T) {
 				gomock.InOrder(
 					mer.EXPECT().ErrThreadNotFound(errors.New("user_not_found")).Return(false),
 					mer.EXPECT().ErrUserNotFound(errors.New("user_not_found")).Return(true),
-					msr.EXPECT().PostMessage(gomock.Any(), "sampleChannel",
+					msr.EXPECT().PostEphemeral(gomock.Any(), "sampleChannel",
 						"参加者はいないようです:neko_namida:",
-						"sampleThreadTimeStamp").Return(nil),
+						"sampleThreadTimeStamp", "sampleUser").Return(nil),
 				)
 			},
 		},
@@ -292,9 +298,9 @@ func Test_slackErrorResponseService_ReplyError(t *testing.T) {
 				gomock.InOrder(
 					mer.EXPECT().ErrThreadNotFound(errors.New("user_not_found")).Return(false),
 					mer.EXPECT().ErrUserNotFound(errors.New("user_not_found")).Return(true),
-					msr.EXPECT().PostMessage(gomock.Any(), "sampleChannel",
+					msr.EXPECT().PostEphemeral(gomock.Any(), "sampleChannel",
 						"参加者はいないようです:neko_namida:",
-						"sampleThreadTimeStamp").Return(errors.New("sample_error")),
+						"sampleThreadTimeStamp", "sampleUser").Return(errors.New("sample_error")),
 				)
 			},
 			wantErr: true,
