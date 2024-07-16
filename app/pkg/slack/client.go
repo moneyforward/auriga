@@ -46,7 +46,7 @@ func AppTokenOption(appToken string) Option {
 }
 
 // NewClient builds a slack client
-func NewClient(botToken string, options ...Option) (*client, error) {
+func NewClient(botToken string, options ...Option) (Client, error) {
 	c := slack.New(botToken, options...)
 	at, err := c.AuthTest()
 	if err != nil {
