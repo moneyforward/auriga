@@ -22,6 +22,8 @@ jobs:
         run: sudo npm i -g serverless-offline@9.0.0
       - name: Install Serverless utils
         run: sudo npm i -g @serverless/utils@6.7.0
+      - name: Install simple-git # https://github.com/serverless/serverless/issues/12418#issuecomment-2048920297
+        run: sudo npm i -g simple-git@3.22.0
       - name: Serverless deploy
         run: make deploy
         env:
