@@ -2,12 +2,12 @@ name: deploy
 
 on:
   push:
-    branches:
-      - 'main'
+#    branches:
+#      - 'main'
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: ichikimfw/node-go:14.17.0-1.17.7
     steps:
