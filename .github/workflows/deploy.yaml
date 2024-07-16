@@ -27,7 +27,7 @@ jobs:
           CURRENT_DIR=$(pwd)
           echo "CURRENT_DIR=$CURRENT_DIR" >> $GITHUB_ENV
           cd /usr/local/lib/node_modules/serverless
-          sudo npm i -g simple-git@3.22.0
+          sudo npm i simple-git@3.22.0
       - name: Serverless deploy
         run: |
           cd $CURRENT_DIR
