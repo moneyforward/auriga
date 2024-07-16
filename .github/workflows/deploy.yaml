@@ -25,12 +25,12 @@ jobs:
       - name: Install simple-git # https://github.com/serverless/serverless/issues/12418#issuecomment-2048920297
         run: |
           CURRENT_DIR=$(pwd)
-          echo "::set-output name=current_dir::$CURRENT_DIR"
+          echo "CURRENT_DIR=$CURRENT_DIR" >> $GITHUB_ENV
           cd /usr/local/lib/node_modules/serverless
           sudo npm i -g simple-git@3.22.0
       - name: Serverless deploy
         run: |
-          cd ${{steps.checkout.outputs.current_dir}}
+          cd $CURRENT_DIR
           make deploy
         env:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
