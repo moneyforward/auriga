@@ -62,7 +62,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 		emails []*model.SlackUserEmail
 		cid    string
 		ts     string
-		user   string
+		userID string
 	}
 	tests := []struct {
 		name    string
@@ -76,7 +76,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				emails: createEmails(0, 1),
 				ts:     "ts",
 				cid:    "cid",
-				user:   "sampleUser",
+				userID: "sampleUser",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
@@ -92,7 +92,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				emails: createEmails(0, lineSizeOfPostEmailList-1),
 				ts:     "ts",
 				cid:    "cid",
-				user:   "sampleUser",
+				userID: "sampleUser",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
@@ -108,7 +108,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				emails: createEmails(0, lineSizeOfPostEmailList),
 				ts:     "ts",
 				cid:    "cid",
-				user:   "sampleUser",
+				userID: "sampleUser",
 			},
 			prepare: func(msr *mock_repository.MockSlackRepository) {
 				gomock.InOrder(
@@ -136,7 +136,7 @@ func Test_slackResponseService_postEmailList(t *testing.T) {
 				slackRepository: msr,
 				errorRepository: mer,
 			}
-			if err := s.postEmailList(ctx, tt.args.cid, tt.args.emails, tt.args.ts, tt.args.user); (err != nil) != tt.wantErr {
+			if err := s.postEmailList(ctx, tt.args.cid, tt.args.emails, tt.args.ts, tt.args.userID); (err != nil) != tt.wantErr {
 				t.Errorf("postEmailList() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
