@@ -16,6 +16,8 @@ The functionality we wanted to achieve with Slackbot and the mission of Auriga c
 
 ## Usage
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ![](./docs/img/usage.png)
 
 1. Call Auriga in a thread like `@Auriga :reaction:` and specify the reaction.
