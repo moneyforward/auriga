@@ -34,7 +34,7 @@ test:
 	go test ./...
 build:
 	export GO111MODULE=on
-	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/cmd app/cmd/main.go
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bootstrap app/cmd/main.go
 
 deploy: build
 	sls deploy --verbose
