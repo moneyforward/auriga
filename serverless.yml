@@ -2,7 +2,7 @@ service: auriga
 
 provider:
   name: aws
-  runtime: go1.x
+  runtime: provided.al2023
   region: ap-northeast-1
 
 package:
