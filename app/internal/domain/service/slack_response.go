@@ -57,14 +57,14 @@ const (
 // postEmailList method posts emailList using slack postMessageAPI.
 // The chunkedLines are generated and requested for each chunk,
 // because of considering the limit the number of characters of slackAPI.
-func (s *slackResponseService) postEmailList(ctx context.Context, channelID string, emails []*model.SlackUserEmail, ts string, userID string) error {
+func (s *slackResponseService) postEmailList(ctx context.Context, channelID string, emails []*model.SlackUserEmail, ts string) error {
 	lines := append(make([]string, 0, len(emails)+1), "参加者一覧")
 	for _, email := range emails {
 		lines = append(lines, email.Email)
 	}
 	chunkedLines := slice.SplitStringSliceInChunks(lines, lineSizeOfPostEmailList)
 	for _, chunkedLine := range chunkedLines {
-		err := s.slackRepository.PostEphemeral(ctx, channelID, strings.Join(chunkedLine, "\n"), ts, userID)
+		err := s.slackRepository.PostMessage(ctx, channelID, strings.Join(chunkedLine, "\n"), ts)
 		if err != nil {
 			return err
 		}
@@ -79,10 +79,10 @@ func (s *slackResponseService) ReplyEmailList(ctx context.Context, event *slacke
 		for _, email := range emails {
 			b.WriteString("\n" + email.Email)
 		}
-		return s.slackRepository.PostEphemeral(ctx, event.Channel, b.String(), event.ThreadTimeStamp, event.User)
+		return s.slackRepository.PostMessage(ctx, event.Channel, b.String(), event.ThreadTimeStamp)
 	}
 
-	return s.postEmailList(ctx, event.Channel, emails, event.ThreadTimeStamp, event.User)
+	return s.postEmailList(ctx, event.Channel, emails, event.ThreadTimeStamp)
 }
 
 func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevents.AppMentionEvent, err error) error {
@@ -95,8 +95,8 @@ func (s *slackResponseService) ReplyError(ctx context.Context, event *slackevent
 	}
 	if s.errorRepository.ErrUserNotFound(err) {
 		msg += "参加者はいないようです:neko_namida:"
-		return s.slackRepository.PostEphemeral(
-			ctx, event.Channel, msg, event.ThreadTimeStamp, event.User,
+		return s.slackRepository.PostMessage(
+			ctx, event.Channel, msg, event.ThreadTimeStamp,
 		)
 	}
 	return err
