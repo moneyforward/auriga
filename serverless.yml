@@ -6,10 +6,11 @@ provider:
   region: ap-northeast-1
 
 package:
- exclude:
-   - ./**
+ # exclude:
+ #   - ./**
  include:
-   - ./bin/**
+   # - ./bin/**
+   - ./**
 
 plugins:
   - serverless-offline
@@ -22,7 +23,7 @@ custom:
 
 functions:
   cmd:
-    handler: bin/cmd
+    handler: bootstrap
     events:
       - http:
           path: callback
